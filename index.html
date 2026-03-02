@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>實證醫學數位教材及課程</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
+        .animate-marquee:hover { animation-play-state: paused; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-700 font-sans antialiased">
+
+
+    <!-- 導覽列 -->
+    <nav class="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200/80">
+                    <i data-lucide="graduation-cap" class="text-white w-5 h-5"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-black text-slate-900 tracking-tight leading-none text-base">實證醫學</span>
+                    <span class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">數位教材課程</span>
+                </div>
+            </div>
+           
+            <div class="hidden md:flex items-center gap-10">
+                <button onclick="switchTab('home')" class="nav-btn text-sm font-bold text-blue-600 relative" id="btn-home">首頁</button>
+                <button onclick="switchTab('resources')" class="nav-btn text-sm font-bold text-slate-400 hover:text-slate-600" id="btn-resources">資源</button>
+                <button onclick="switchTab('videos')" class="nav-btn text-sm font-bold text-slate-400 hover:text-slate-600" id="btn-videos">影音</button>
+                <button onclick="switchTab('chat')" class="nav-btn text-sm font-bold text-slate-400 hover:text-slate-600" id="btn-chat">討論</button>
+            </div>
+
+
+            <div class="flex items-center gap-4">
+                <a id="main-link-btn" href="#" target="_blank" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-black border border-blue-100 transition-all hover:bg-blue-100 shadow-sm">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> <span id="main-link-text">主教材</span>
+                </a>
+                <button id="admin-toggle" onclick="toggleAdminLogin()" class="text-slate-300 hover:text-blue-600 transition-colors">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                </button>
+                <button id="admin-panel-btn" onclick="toggleModal('add-modal')" class="hidden bg-slate-900 text-white px-5 py-2 rounded-full text-xs font-black shadow-md hover:bg-slate-800 transition-all">
+                    管理中心
+                </button>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- 環境資訊跑馬燈 -->
+    <div class="bg-white border-b border-slate-100">
+        <div class="max-w-6xl mx-auto px-6 py-1.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4 text-[11px] font-bold text-slate-400">
+                <div class="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                    <i data-lucide="clock" class="w-3 h-3"></i>
+                    <span id="live-clock">--:--:--</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-500">
+                    <i id="weather-icon" data-lucide="cloud" class="w-3.5 h-3.5"></i>
+                    <span id="weather-text">新竹 --°C 讀取中</span>
+                </div>
+            </div>
+            <div class="flex-1 min-w-[300px] overflow-hidden relative flex items-center h-8 bg-slate-50 rounded-xl px-2">
+                <div class="bg-blue-600 text-white text-[9px] font-black px-2 py-1 z-10 rounded-lg shrink-0 mr-3 shadow-sm animate-pulse">公告</div>
+                <div class="w-full relative overflow-hidden">
+                    <div id="marquee-text" class="animate-marquee font-bold text-slate-500 text-[11px] py-1">讀取中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 主要內容區 -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
+       
+        <!-- 首頁分頁 -->
+        <div id="tab-home" class="tab-content active space-y-20">
+            <header class="text-center space-y-6">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black tracking-widest uppercase border border-blue-100">
+                    2026 EBM Digital Program
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter leading-tight">
+                    實證醫學<span class="text-blue-600">數位課程計畫</span>
+                </h1>
+                <p class="max-w-2xl mx-auto text-slate-500 text-lg font-medium leading-relaxed">
+                    整合系統化學習路徑與即時臨床證據。<br class="hidden md:block">點擊下方按鈕開始您的 2026 年度學習之旅。
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button onclick="switchTab('videos')" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-blue-700 hover:-translate-y-1 transition-all shadow-xl shadow-blue-200">
+                        進入影音專區
+                    </button>
+                    <a id="hero-main-link" href="#" target="_blank" class="bg-white border-2 border-slate-100 text-slate-700 px-8 py-4 rounded-2xl font-black hover:border-blue-500 hover:text-blue-600 transition-all flex items-center gap-2 shadow-sm">
+                        <span id="hero-main-text">主數位教材</span> <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </header>
+
+
+            <section class="space-y-12">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="roadmap-container">
+                    <!-- Roadmap Items -->
+                </div>
+
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 核心目標 -->
+                    <div class="bg-white p-10 rounded-[2.5rem] border border-slate-100 space-y-8 shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-inner"><i data-lucide="target" class="w-6 h-6"></i></div>
+                            <h3 class="text-xl font-black text-slate-900">2026 學習核心</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4" id="core-pillars">
+                            <!-- Pillars Items -->
+                        </div>
+                    </div>
+
+
+                    <!-- 動態課表 -->
+                    <div class="bg-slate-900 p-10 rounded-[2.5rem] text-white flex flex-col shadow-2xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="calendar" class="w-24 h-24"></i></div>
+                        <div class="flex items-center gap-4 mb-8 relative z-10">
+                            <div class="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                            <h3 class="text-xl font-black">近期動態表</h3>
+                        </div>
+                        <div class="space-y-4 flex-1 relative z-10" id="home-events-list">
+                            <!-- Events -->
+                        </div>
+                        <button onclick="switchTab('resources')" class="mt-8 text-blue-400 text-xs font-black flex items-center gap-1 hover:gap-2 transition-all uppercase tracking-widest relative z-10">
+                            查看完整年度計畫 <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- 資訊卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="info-cards">
+                    <!-- Info Cards Items -->
+                </div>
+            </section>
+        </div>
+
+
+        <!-- 資源分頁 -->
+        <div id="tab-resources" class="tab-content space-y-8 animate-in fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                <h2 class="text-3xl font-black text-slate-900">數位資源庫</h2>
+                <div class="relative w-full md:w-64 group">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 w-4 h-4"></i>
+                    <input type="text" id="resource-search" placeholder="搜尋教材標題..." class="w-full bg-white border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="resources-grid">
+                <!-- Resources Items -->
+            </div>
+        </div>
+
+
+        <!-- 影音分頁 -->
+        <div id="tab-videos" class="tab-content space-y-8 animate-in fade-in">
+            <h2 class="text-3xl font-black text-slate-900 flex items-center gap-3"><i data-lucide="youtube" class="text-red-500 w-8 h-8"></i> YouTube 影音平台</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="videos-grid">
+                <!-- Video Items -->
+            </div>
+        </div>
+
+
+        <!-- 討論分頁 -->
+        <div id="tab-chat" class="tab-content space-y-8 animate-in fade-in">
+            <div class="max-w-4xl mx-auto h-[70vh] flex flex-col bg-white border border-slate-100 rounded-[3rem] shadow-2xl overflow-hidden">
+                <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+                    <h3 class="text-xl font-black text-slate-900">臨床共學討論</h3>
+                    <div class="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-slate-200 text-[11px] font-bold shadow-sm">
+                        <span class="text-slate-400">匿名暱稱:</span>
+                        <input id="chat-username" class="text-blue-600 outline-none w-28 bg-transparent" value="讀取中...">
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-10 space-y-6 bg-slate-50/10" id="chat-messages">
+                    <!-- Messages -->
+                </div>
+                <form id="chat-form" class="p-8 border-t border-slate-50 bg-white flex gap-4">
+                    <input id="chat-input" class="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-8 py-4 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-500/10 transition-all placeholder:text-slate-300" placeholder="在此輸入臨床問題或學習心得分享...">
+                    <button type="submit" class="bg-blue-600 text-white w-14 h-14 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-100 flex items-center justify-center">
+                        <i data-lucide="send" class="w-6 h-6"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- 頁尾 -->
+    <footer class="max-w-6xl mx-auto px-6 py-16 border-t border-slate-200/60 mt-10 text-center">
+        <div class="font-black text-slate-300 text-[10px] uppercase tracking-[0.4em]">實證醫學數位教材及課程管理系統 - 2026 EDITION</div>
+        <div class="text-slate-200 text-[9px] font-bold mt-2 uppercase tracking-widest">Sustainability Project by Hsinchu Clinical Team</div>
+    </footer>
+
+
+    <!-- 模態框：管理員登入 -->
+    <div id="login-modal" class="modal fixed inset-0 z-50 items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl space-y-8">
+            <div class="text-center space-y-2">
+                <h3 class="text-xl font-black text-slate-900">後台權限驗證</h3>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Administrator Access Only</p>
+            </div>
+            <input type="password" id="admin-pass-input" placeholder="管理密碼" class="w-full bg-slate-50 border border-slate-100 px-6 py-4 rounded-2xl font-bold shadow-inner outline-none focus:border-blue-500 transition-all">
+            <button onclick="handleAdminLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all">確認登入</button>
+            <button onclick="toggleModal('login-modal')" class="w-full text-slate-300 text-xs font-bold hover:text-slate-500">返回</button>
+        </div>
+    </div>
+
+
+    <!-- 模態框：管理中心 -->
+    <div id="add-modal" class="modal fixed inset-0 z-50 items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
+        <div class="bg-white rounded-[3rem] p-12 max-w-2xl w-full shadow-2xl space-y-10 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-50 pb-6">
+                <h3 class="text-2xl font-black text-slate-900">後台管理中樞</h3>
+                <button type="button" onclick="toggleModal('add-modal')" class="text-slate-300 hover:text-slate-600"><i data-lucide="x" class="w-7 h-7"></i></button>
+            </div>
+           
+            <div class="p-8 bg-blue-50/50 border border-blue-100 rounded-[2.5rem] space-y-6 shadow-sm">
+                <h4 class="text-[11px] font-black text-blue-800 uppercase tracking-widest flex items-center gap-2"><i data-lucide="link" class="w-3.5 h-3.5"></i> 全站環境設定</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <input id="config-link-title" placeholder="主教材文字" class="bg-white border border-blue-100 px-5 py-3 text-xs rounded-xl font-bold outline-none">
+                    <input id="config-link-url" placeholder="主教材 URL" class="bg-white border border-blue-100 px-5 py-3 text-xs rounded-xl font-bold outline-none">
+                </div>
+                <input id="config-marquee" placeholder="跑馬燈公告文字" class="w-full bg-white border border-blue-100 px-5 py-3 text-xs rounded-xl font-bold outline-none">
+                <button onclick="updateGlobalConfig()" class="w-full bg-blue-600 text-white py-3.5 rounded-xl text-xs font-black shadow-lg hover:bg-blue-700 transition-all">儲存站點設定</button>
+            </div>
+
+
+            <div class="p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] space-y-6">
+                <h4 class="text-[11px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> 2026 動態課表發布</h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                    <input type="date" id="event-date" class="bg-white border border-slate-200 px-3 py-2.5 rounded-xl text-[10px] font-bold outline-none">
+                    <input id="event-title" placeholder="課程主題" class="bg-white border border-slate-200 px-3 py-2.5 rounded-xl text-[10px] font-bold outline-none">
+                    <select id="event-type" class="bg-white border border-slate-200 px-3 py-2.5 rounded-xl text-[10px] font-bold">
+                        <option value="線上直播">線上直播</option>
+                        <option value="實體工作坊">實體工作坊</option>
+                        <option value="臨床演練">臨床演練</option>
+                    </select>
+                    <button onclick="addCourseEvent()" class="bg-blue-600 text-white rounded-xl text-[10px] font-black shadow-md px-4">+ 發布</button>
+                </div>
+                <div class="space-y-1.5 max-h-32 overflow-y-auto pr-2" id="manage-events-list">
+                    <!-- Events list for deletion -->
+                </div>
+            </div>
+
+
+            <div class="p-8 bg-slate-50 border border-slate-100 rounded-[2.5rem] space-y-6">
+               <h4 class="text-[11px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2"><i data-lucide="monitor-play" class="w-3.5 h-3.5"></i> 發布資源與影音教材</h4>
+                <input id="post-title" required placeholder="卡片標題" class="w-full bg-white border border-slate-100 px-5 py-3.5 rounded-2xl text-xs font-bold shadow-inner outline-none">
+                <textarea id="post-excerpt" placeholder="簡介內容" class="w-full bg-white border border-slate-100 px-5 py-3.5 rounded-2xl text-xs font-bold outline-none" rows="2"></textarea>
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="post-category" class="bg-white border border-slate-100 px-5 py-3 rounded-2xl text-xs font-bold">
+                        <option value="核心課程">核心課程</option>
+                        <option value="專題講座">專題講座</option>
+                        <option value="實作工作坊">實作工作坊</option>
+                        <option value="參考資源">參考資源</option>
+                        <option value="影音教材">影音教材</option>
+                    </select>
+                    <input id="post-url" placeholder="YouTube 或 教材 URL" class="w-full bg-white border border-slate-100 px-5 py-3 rounded-2xl text-xs font-bold">
+                </div>
+                <input id="post-image" placeholder="封面或截圖 URL (建議填寫)" class="w-full bg-white border border-slate-100 px-5 py-3.5 rounded-2xl text-xs font-bold shadow-inner outline-none">
+                <button onclick="addResourcePost()" class="w-full bg-slate-900 text-white py-5 rounded-[1.5rem] font-black shadow-xl hover:bg-blue-600 transition-all uppercase tracking-[0.2em] text-[11px]">Publish to Database</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 影音播放器彈窗 -->
+    <div id="video-modal" class="modal fixed inset-0 z-[60] items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
+        <div class="bg-black rounded-3xl w-full max-w-5xl aspect-video relative shadow-2xl overflow-hidden">
+            <button onclick="closeVideo()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/10 text-white rounded-full flex items-center justify-center hover:bg-white/20 transition-all backdrop-blur">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <iframe id="video-frame" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    </div>
+
+
+    <!-- Firebase SDKs -->
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js",
+            "firebase/auth": "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
+        }
+    }
+    </script>
+
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "firebase/auth";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot, collection, addDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+
+
+        // --- 全域變數與配置 ---
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ebm-final-platform';
+        const ADMIN_PASSWORD = "0619";
+        const DEFAULT_MAIN_LINK = "https://drake1128.github.io/ebm/index.html";
+       
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+
+        let currentUser = null;
+        let isAdmin = false;
+        let isListenersAttached = false;
+        let state = {
+            posts: [],
+            events: [],
+            messages: [],
+            config: { mainLinkUrl: DEFAULT_MAIN_LINK, mainLinkTitle: "實證醫學數位教材", marquee: "載入中..." }
+        };
+
+
+        const DEFAULT_IMAGES = {
+            '核心課程': 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800',
+            '專題講座': 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
+            '實作工作坊': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800',
+            '參考資源': 'https://images.unsplash.com/photo-1532187875605-2fe35851142b?auto=format&fit=crop&q=80&w=800',
+            '影音教材': 'https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&q=80&w=800'
+        };
+
+
+        // YouTube 連結解析
+        function getYoutubeEmbedUrl(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+        }
+
+
+        function getYoutubeThumbnail(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` : null;
+        }
+
+
+        // --- 初始化時鐘與天氣 ---
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
+        }
+        setInterval(updateTime, 1000);
+
+
+        async function fetchWeather() {
+            try {
+                const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=24.81&longitude=120.97&current_weather=true");
+                const data = await res.json();
+                const temp = Math.round(data.current_weather.temperature);
+                const code = data.current_weather.weathercode;
+                let desc = "晴朗", icon = "sun";
+                if (code > 0 && code < 4) { desc = "多雲"; icon = "cloud"; }
+                else if (code >= 51) { desc = "有雨"; icon = "cloud-rain"; }
+                document.getElementById('weather-text').innerText = `新竹 ${temp}°C ${desc}`;
+                const iconEl = document.getElementById('weather-icon');
+                iconEl.setAttribute('data-lucide', icon);
+                lucide.createIcons();
+            } catch (e) { console.error("Weather error", e); }
+        }
+        fetchWeather();
+
+
+        // --- Firebase 初始化流程 ---
+        const initPlatform = async () => {
+            try {
+                // 先確認身份驗證
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+
+                // 身份驗證狀態監聽
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user && !isListenersAttached) {
+                        isListenersAttached = true;
+                        document.getElementById('chat-username').value = `醫療專家#${user.uid.substring(0,4)}`;
+                        setupListeners();
+                    }
+                });
+            } catch (err) {
+                console.error("Auth init failed", err);
+            }
+        };
+
+
+        const setupListeners = () => {
+            if (!currentUser) return;
+            const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main');
+           
+            // 訪客計數與初始化
+            getDoc(configRef).then(s => {
+                if (s.exists()) {
+                    updateDoc(configRef, { views: increment(1) });
+                } else {
+                    setDoc(configRef, { views: 1, mainLinkUrl: DEFAULT_MAIN_LINK, mainLinkTitle: "實證醫學數位教材", marquee: "歡迎使用！" });
+                }
+            }).catch(e => console.error("Config fetch error", e));
+
+
+            // 監聽配置
+            onSnapshot(configRef, s => {
+                if (s.exists()) {
+                    state.config = s.data();
+                    updateConfigUI();
+                }
+            }, e => console.error("Config snapshot error", e));
+
+
+            // 監聽資源
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), snap => {
+                state.posts = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                renderResources();
+                renderVideos();
+            }, e => console.error("Posts snapshot error", e));
+
+
+            // 監聽課表
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'course_events'), snap => {
+                state.events = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(a.date) - new Date(b.date));
+                renderHomeEvents();
+                renderManageEvents();
+            }, e => console.error("Events snapshot error", e));
+
+
+            // 監聽聊天
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), snap => {
+                state.messages = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
+                renderChat();
+            }, e => console.error("Chats snapshot error", e));
+        };
+
+
+        // --- UI 渲染邏輯 ---
+        function updateConfigUI() {
+            document.getElementById('marquee-text').innerText = state.config.marquee;
+            const btn = document.getElementById('main-link-btn');
+            const heroBtn = document.getElementById('hero-main-link');
+            const url = state.config.mainLinkUrl || "#";
+            const title = state.config.mainLinkTitle || "主教材";
+           
+            btn.href = url;
+            heroBtn.href = url;
+            document.getElementById('main-link-text').innerText = title;
+            document.getElementById('hero-main-text').innerText = title;
+
+
+            // 管理表單預填
+            document.getElementById('config-link-title').value = title;
+            document.getElementById('config-link-url').value = url;
+            document.getElementById('config-marquee').value = state.config.marquee;
+        }
+
+
+        window.renderHomeEvents = () => {
+            const container = document.getElementById('home-events-list');
+            if (state.events.length === 0) {
+                container.innerHTML = `<div class="py-10 text-center text-slate-600 text-xs italic">尚無近期排定課程</div>`;
+                return;
+            }
+            container.innerHTML = state.events.slice(0, 3).map(evt => `
+                <div class="flex items-center gap-4 group">
+                    <div class="text-center bg-blue-600 rounded-xl p-2 min-w-[55px] shadow-lg shadow-blue-900/40">
+                        <p class="text-sm font-black text-white">${new Date(evt.date).getDate()}</p>
+                        <p class="text-[9px] font-bold text-white opacity-70 uppercase">${new Date(evt.date).toLocaleString('zh-TW', { month: 'short' })}</p>
+                    </div>
+                    <div class="flex-1 border-b border-white/10 pb-2 text-white">
+                        <p class="font-bold text-xs line-clamp-1">${evt.title}</p>
+                        <span class="text-[9px] font-black text-blue-300 uppercase">${evt.type}</span>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+
+        window.renderResources = () => {
+            const grid = document.getElementById('resources-grid');
+            const search = document.getElementById('resource-search').value.toLowerCase();
+            const filtered = state.posts.filter(p => p.title.toLowerCase().includes(search));
+
+
+            grid.innerHTML = filtered.map(post => `
+                <div class="bg-white rounded-[2rem] border border-slate-100 overflow-hidden hover:shadow-2xl transition-all flex flex-col group">
+                    <div class="aspect-[16/10] relative overflow-hidden bg-slate-50">
+                        <img src="${post.imageUrl || DEFAULT_IMAGES[post.category] || DEFAULT_IMAGES['核心課程']}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-1000">
+                        <div class="absolute top-4 left-4"><span class="px-3 py-1 bg-white/90 backdrop-blur text-[9px] font-black text-blue-600 rounded-full shadow-sm">${post.category}</span></div>
+                    </div>
+                    <div class="p-7 flex-1 flex flex-col">
+                        <h3 class="text-base font-black text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">${post.title}</h3>
+                        <p class="text-slate-500 text-[11px] line-clamp-2 flex-1 font-medium">${post.excerpt || '點擊進入學習單元...'}</p>
+                        <div class="flex items-center justify-between pt-6 mt-6 border-t border-slate-50">
+                            <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest">${post.date}</span>
+                            <div class="flex items-center gap-2">
+                                ${isAdmin ? `<button onclick="deleteData('posts', '${post.id}')" class="text-red-200 hover:text-red-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                                ${post.externalUrl ? `<a href="${post.externalUrl}" target="_blank" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 transition-all shadow-md">開啟教材</a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        };
+
+
+        window.renderVideos = () => {
+            const grid = document.getElementById('videos-grid');
+            const videoPosts = state.posts.filter(p => p.videoUrl || p.category === '影音教材');
+           
+            grid.innerHTML = videoPosts.map(post => {
+                const thumb = getYoutubeThumbnail(post.videoUrl) || post.imageUrl || DEFAULT_IMAGES['影音教材'];
+                return `
+                <div class="bg-white rounded-[2rem] border border-slate-100 overflow-hidden hover:shadow-2xl transition-all group cursor-pointer" onclick="playVideo('${post.videoUrl}')">
+                    <div class="aspect-video relative overflow-hidden bg-slate-900">
+                        <img src="${thumb}" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000" alt="${post.title}">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/0">
+                            <div class="w-12 h-12 bg-white/95 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all">
+                                <i data-lucide="play" class="w-6 h-6 text-blue-600 ml-1 fill-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-sm font-black text-slate-900 mb-2 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">${post.title}</h3>
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
+                            <span class="text-[9px] text-slate-400 font-black uppercase tracking-widest">${post.date}</span>
+                            ${isAdmin ? `<button onclick="event.stopPropagation(); deleteData('posts', '${post.id}')" class="text-red-200 hover:text-red-500"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        };
+
+
+        window.renderChat = () => {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = state.messages.map(m => `
+                <div class="flex flex-col ${m.uid === currentUser?.uid ? 'items-end' : 'items-start'}">
+                    <span class="text-[9px] mb-1.5 px-2 font-black text-slate-400 uppercase tracking-widest">${m.user}</span>
+                    <div class="px-6 py-3.5 rounded-[1.5rem] text-[13px] max-w-[80%] shadow-sm leading-relaxed ${m.uid === currentUser?.uid ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'}">
+                        ${m.text}
+                    </div>
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+            lucide.createIcons();
+        };
+
+
+        window.renderManageEvents = () => {
+            const container = document.getElementById('manage-events-list');
+            container.innerHTML = state.events.map(evt => `
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-500">[${evt.date}] ${evt.title}</span>
+                    <button onclick="deleteData('course_events', '${evt.id}')" class="text-red-200 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+
+        // --- 互動功能與切換 ---
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-blue-600');
+                el.classList.add('text-slate-400');
+            });
+           
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`btn-${tabId}`).classList.add('text-blue-600');
+            document.getElementById(`btn-${tabId}`).classList.remove('text-slate-400');
+           
+            if(tabId === 'chat') {
+                setTimeout(() => {
+                    const c = document.getElementById('chat-messages');
+                    c.scrollTop = c.scrollHeight;
+                }, 100);
+            }
+            lucide.createIcons();
+        };
+
+
+        window.toggleModal = (id) => {
+            document.getElementById(id).classList.toggle('active');
+            lucide.createIcons();
+        };
+
+
+        window.toggleAdminLogin = () => {
+            if (isAdmin) {
+                isAdmin = false;
+                alert("已退出管理模式");
+                document.getElementById('admin-toggle').classList.remove('text-blue-600');
+                document.getElementById('admin-panel-btn').classList.add('hidden');
+                renderResources();
+                renderVideos();
+            } else {
+                toggleModal('login-modal');
+            }
+        };
+
+
+        window.handleAdminLogin = () => {
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                toggleModal('login-modal');
+                document.getElementById('admin-toggle').classList.add('text-blue-600');
+                document.getElementById('admin-panel-btn').classList.remove('hidden');
+                document.getElementById('admin-pass-input').value = "";
+                renderResources();
+                renderVideos();
+                renderManageEvents();
+            } else {
+                alert("密碼錯誤");
+            }
+        };
+
+
+        // --- 管理操作功能 ---
+        window.updateGlobalConfig = async () => {
+            if (!currentUser || !isAdmin) return;
+            const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'main');
+            await updateDoc(configRef, {
+                mainLinkUrl: document.getElementById('config-link-url').value,
+                mainLinkTitle: document.getElementById('config-link-title').value,
+                marquee: document.getElementById('config-marquee').value
+            });
+            alert("全站設定已同步");
+        };
+
+
+        window.addCourseEvent = async () => {
+            if (!currentUser || !isAdmin) return;
+            const date = document.getElementById('event-date').value;
+            const title = document.getElementById('event-title').value;
+            const type = document.getElementById('event-type').value;
+            if (!date || !title) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'course_events'), { date, title, type, createdAt: serverTimestamp() });
+            document.getElementById('event-date').value = "";
+            document.getElementById('event-title').value = "";
+        };
+
+
+        window.addResourcePost = async () => {
+            if (!currentUser || !isAdmin) return;
+            const title = document.getElementById('post-title').value;
+            const excerpt = document.getElementById('post-excerpt').value;
+            const category = document.getElementById('post-category').value;
+            const url = document.getElementById('post-url').value;
+            const img = document.getElementById('post-image').value;
+            if(!title) return;
+
+
+            let postData = { title, excerpt, category, imageUrl: img, createdAt: serverTimestamp(), date: new Date().toLocaleDateString('zh-TW') };
+            if (url.includes('youtube') || url.includes('youtu.be')) postData.videoUrl = url;
+            else postData.externalUrl = url;
+
+
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), postData);
+            alert("卡片發布成功");
+        };
+
+
+        window.deleteData = async (col, id) => {
+            if (!currentUser || !isAdmin) return;
+            if (window.confirm("確定永久刪除此項？")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', col, id));
+            }
+        };
+
+
+        window.playVideo = (url) => {
+            if (!url) return;
+            const embed = getYoutubeEmbedUrl(url);
+            if (!embed) return;
+            document.getElementById('video-frame').src = `${embed}?autoplay=1`;
+            toggleModal('video-modal');
+        };
+
+
+        window.closeVideo = () => {
+            document.getElementById('video-frame').src = "";
+            toggleModal('video-modal');
+        };
+
+
+        // --- 聊天功能 ---
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            const text = document.getElementById('chat-input').value;
+            const user = document.getElementById('chat-username').value;
+            if (!text.trim()) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'chats'), {
+                text, user, uid: currentUser.uid, timestamp: serverTimestamp()
+            });
+            document.getElementById('chat-input').value = "";
+        };
+
+
+        // --- 靜態內容初始化 ---
+        const renderStatic = () => {
+            const roadmap = document.getElementById('roadmap-container');
+            roadmap.innerHTML = [
+                { q: 'Q1', t: '基礎扎根', d: 'PICO 與檢索', i: 'search' },
+                { q: 'Q2', t: '深度評讀', d: 'CASP 工具應用', i: 'microscope' },
+                { q: 'Q3', t: '臨床轉化', d: '證據與決策整合', i: 'clipboard-check' },
+                { q: 'Q4', t: '卓越成果', d: '競賽與成果展示', i: 'rocket' }
+            ].map(s => `
+                <div class="p-6 bg-white border border-slate-100 rounded-3xl group hover:border-blue-300 transition-all">
+                    <div class="text-blue-600 font-black text-xl mb-2 opacity-30">${s.q}</div>
+                    <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors"><i data-lucide="${s.i}" class="w-4.5 h-4.5"></i></div>
+                    <h4 class="font-black text-slate-800 text-base mb-1">${s.t}</h4>
+                    <p class="text-slate-400 text-[11px] font-bold">${s.d}</p>
+                </div>
+            `).join('');
+
+
+            const pillars = document.getElementById('core-pillars');
+            pillars.innerHTML = [
+                { t: '精確 PICO 拆解', d: '將複雜臨床情境轉化為可檢索問題。' },
+                { t: '高效檢索策略', d: '精通 PubMed 與進階檢索工具應用。' },
+                { t: '系統批判評讀', d: '掌握研究信效度與臨床意義分析。' },
+                { t: '共享決策轉化', d: '將證據、專業與患者價值完美結合。' }
+            ].map(p => `
+                <div class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <i data-lucide="check-circle" class="text-blue-500 w-4.5 h-4.5"></i>
+                    <div>
+                        <p class="font-black text-slate-800 text-sm">${p.t}</p>
+                        <p class="text-slate-400 text-[10px] font-bold mt-0.5">${p.d}</p>
+                    </div>
+                </div>
+            `).join('');
+
+
+            const info = document.getElementById('info-cards');
+            info.innerHTML = [
+                { i: 'users', l: '多元參與', t: '全體臨床與醫事人員，鼓勵跨領域參賽。', c: 'bg-blue-50 text-blue-600' },
+                { i: 'award', l: '學分認證', t: '認列院內教學積分及實證專屬教育時數。', c: 'bg-indigo-50 text-indigo-600' },
+                { i: 'info', l: '混成學習', t: '數位先行、實體深耕，聚焦案例討論。', c: 'bg-slate-100 text-slate-700' }
+            ].map(c => `
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 ${c.c} rounded-xl flex items-center justify-center shrink-0"><i data-lucide="${c.i}" class="w-5 h-5"></i></div>
+                    <div>
+                        <h4 class="font-black text-slate-900 text-xs">${c.l}</h4>
+                        <p class="text-slate-500 text-[10px] font-medium leading-relaxed mt-1">${c.t}</p>
+                    </div>
+                </div>
+            `).join('');
+
+
+            lucide.createIcons();
+        };
+
+
+        // 啟動
+        renderStatic();
+        initPlatform();
+       
+        // 監聽資源搜尋
+        document.getElementById('resource-search').oninput = renderResources;
+
+
+    </script>
+</body>
+</html>
+
